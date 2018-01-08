@@ -1,0 +1,63 @@
+library(tidyr)
+library(ggplot2)
+
+#carga del set datos
+LE <- read.table("C:/Users/Toni/Google Drive/Master UOC/Asignaturas/Tipologia y ciclo de vida de los datos/Practica2/LEPC.csv", header=TRUE, sep=";", na.strings="NA", dec=".", strip.white=TRUE)
+LE<-LEO   #movemos al set de trabajo
+head(LE)
+
+Seleccionamos las variables que necesitamos para el estudio
+LE<-LE[,5:6]
+colnames(LE)<-c("hombre","mujer")  #cambio del nombre de las columnas
+
+#Contamos y eliminamos blancos
+sapply(LE, function(x)(sum(is.na(x))))
+LE <- na.omit(LE)
+sapply(LE, function(x)(sum(is.na(x))))
+str(LE)
+summary(LE)
+
+#cambio del formato del grupo a Tidy format
+LE<-gather(LE,sexo,edad)
+head(LE)
+summary(LE)
+
+#tests de normalidad
+library(nortest)
+attach(LE)
+shapiro.test(edad)$p.value   #Shapiro-Wilk
+ad.test(edad)$p.value		#Anderson-Darling
+cvm.test(edad)$p.value		#Cramer-von Mises
+lillie.test(edad)$p.value	#Lillie
+pearson.test(edad)$p.value	#Pearson
+sf.test(edad)$p.value		#Shapiro-Francia
+
+#Graficamos para confirmar visualmente si hay normalidad
+with(LE, Hist(edad, scale="frequency", breaks="Sturges", col="darkgray"))
+densityPlot( ~ edad, data=LE, bw="SJ", adjust=1, kernel="gaussian")		
+with(LE, qqPlot(edad, dist="norm", id.method="y", id.n=2, labels=rownames(LE)))
+
+
+#tests de normalidad de variazas
+library(lawstat)
+bartlett.test(edad~sexo, data=LE)
+levene.test(edad,sexo)
+
+#Factorizamos para graficar
+LEBK<-LE
+LE$edad<-as.factor(LE$edad)
+LE$sexo<-as.factor(LE$sexo)
+str(LE)
+
+
+#Test de wilcoxon
+wilcox.test(edad ~ sexo, alternative="two.sided", data=LSF)
+
+#Gráficos
+Boxplot(edad~sexo, data=LSF, id.method="y")
+with(LE, Hist(edad, groups=sexo, scale="frequency", breaks="Sturges", col="darkgray"))
+densityPlot(edad~sexo, data=LE, bw="SJ", adjust=1, kernel="gaussian")
+with(LSF, Hist(edad, groups=sexo, scale="frequency", breaks="Sturges", col="darkgray"))
+
+#graba resultados en disco
+write.table(LSF,"C:\\Users\\Toni\\Google Drive\\Master UOC\\Asignaturas\\Tipologia y ciclo de vida de los datos\\Practica2\\resultados.txt")

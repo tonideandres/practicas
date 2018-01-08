@@ -1,0 +1,5 @@
+Contenido de los ficheros:
+IntruccionesR_V2.txt: código R
+Practica2__M2.851_20171_TonideAndrés_V2.pdf: justificación de los entregables
+resultados.txt: fichero con el conjunto resultados
+LEPC.csv: set de datos original
